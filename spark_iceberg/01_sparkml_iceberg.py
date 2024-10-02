@@ -50,14 +50,14 @@ def exp1(df):
     snapshot_id = spark.read.format("iceberg").load("spark_catalog.default.training.snapshots").select("snapshot_id").tail(1)[0][0]
     committed_at = spark.read.format("iceberg").load("spark_catalog.default.training.snapshots").select("committed_at").tail(1)[0][0].strftime('%m/%d/%Y')
     parent_id = spark.read.format("iceberg").load("spark_catalog.default.training.snapshots").select("parent_id").tail(1)[0][0]
-    
+
     tags = {
       "iceberg_snapshot_id": snapshot_id,
       "iceberg_snapshot_committed_at": committed_at,
       "iceberg_parent_id": parent_id,
       "row_count": training_df.count()
     }
-    
+
     ### MLFLOW EXPERIMENT RUN
     with mlflow.start_run() as run:
 
@@ -80,18 +80,13 @@ def exp1(df):
         mlflow.set_tags(tags)
 
     mlflow.end_run()
-    
+
     experiment_id = mlflow.get_experiment_by_name("sparkml-experiment-new").experiment_id
     runs_df = mlflow.search_runs(experiment_id, run_view_type=1)
-    
+
     return runs_df
 
 exp1(training_df)
-
-from pyspark.ml import PipelineModel 
-# Path where the pipeline model was saved 
-path = "/home/cdsw/models-tests" 
-# Load the fitted pipeline model loaded_pipeline_model = PipelineModel.load(path) # Now you can use the model to make predictions predictions = loaded_pipeline_model.transform(test_data)
 
 test_df = spark.createDataFrame(
 [
@@ -103,12 +98,13 @@ test_df = spark.createDataFrame(
 ["id", "text"],
 )
 
-import mlflow
+from pyspark.ml import PipelineModel
 
-logged_model = '/home/cdsw/.experiments/to9f-oq8b-qch6-u3ex/3oxt-tjek-73lg-danq/artifacts/artifacts'
+# Path where the pipeline model was saved
+logged_model = '/home/cdsw/.experiments/yvyi-t7tu-8u5z-ezdm/omc7-qex7-jm6y-i5zv/artifacts/pipe_artifacts/sparkml/'
 
-# Load model as a Spark UDF.
-loaded_model = mlflow.pyfunc.spark_udf(spark, model_uri=logged_model)
+# Load the fitted pipeline model
+loaded_pipeline_model = PipelineModel.load(logged_model)
 
-# Predict on a Spark DataFrame.
-test_df.withColumn('predictions', loaded_model(*column_names)).collect()
+# Now you can use the model to make predictions
+predictions = loaded_pipeline_model.transform(test_df)

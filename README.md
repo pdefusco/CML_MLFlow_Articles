@@ -26,10 +26,10 @@ In this set of demo articles and tutorials you will discover how to use popular 
 ##### 2. Spark & Iceberg Example
 
 * Open a CML Session with the following settings. ```Editor: Workbench / Edition: Standard / Version: 2024.02 or above / Enable Spark: Spark 3.2 or above / Resource Profile: 2 vCPU & 4GiB Mem & 0 GPUs.```
-* Open the terminal and copy "tmp/spark-executor.json" into your local project home: ```cp tmp/spark-executor.json spark-executor.json```
+* Open the terminal and copy "tmp/spark-executor.json" into your local project home: ```cp /tmp/spark-executor.json spark-executor.json```
 * Open ```spark-executor.json``` in the Workbench editor and search for the ```/home/cdsw/``` field. In the corresponding struct, remove the ```"readOnly":true``` key value pair from the file.
-* Now replace the file under tmp: ```cp spark-executor.json tmp/spark-executor.json```.
-* Now run ```01_sparkml_iceberg.py```. Notice that the model artifact is logged with the ```mlflow.spark.log_model``` method by referencing the ```dfs_tmpdir``` option.
+* Replace the file under tmp: ```cp spark-executor.json /tmp/spark-executor.json```.
+* Now partially run ```01_sparkml_iceberg.py``` until line 104. Notice that the model artifact is logged with the ```mlflow.spark.log_model``` method by referencing the ```dfs_tmpdir``` option. Next, take down the name of the experiment ID and experiment run ID from the output of the ```exp1``` method (or the MLFlow Tracking UI in CML). Finally, update these two values in the model path at line 108, and run the rest of the script.  
 
 ### Summary & Next Steps
 
