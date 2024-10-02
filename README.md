@@ -18,7 +18,7 @@ In this set of demo articles and tutorials you will discover how to use popular 
 ##### 1. XGBoost Example
 
 * Open a CML Session with the following settings. ```Editor: Workbench / Edition: Standard / Version: 2024.02 or above / Enable Spark: Spark 3.2 or above / Resource Profile: 2 vCPU & 4GiB Mem & 0 GPUs.```
-* In the CML Session, install the requirements.txt file located in the "mlflow_xgboost" folder.
+* In the CML Session, install the requirements.txt with ```pip3 install -r requirements.txt```.
 * Open ```00_datagen.py``` and update ```CONNECTION_NAME``` with the Spark Data Connection that is local to your project.
 * Run ```00_datagen.py```.
 * Run ```01_mlflow_xgboost.py```.
@@ -26,6 +26,7 @@ In this set of demo articles and tutorials you will discover how to use popular 
 ##### 2. Spark & Iceberg Example
 
 * Open a CML Session with the following settings. ```Editor: Workbench / Edition: Standard / Version: 2024.02 or above / Enable Spark: Spark 3.2 or above / Resource Profile: 2 vCPU & 4GiB Mem & 0 GPUs.```
+* In the CML Session, install the requirements.txt with ```pip3 install -r requirements.txt```.
 * Open the terminal and copy "tmp/spark-executor.json" into your local project home: ```cp /tmp/spark-executor.json spark-executor.json```
 * Open ```spark-executor.json``` in the Workbench editor and search for the ```/home/cdsw/``` field. In the corresponding struct, remove the ```"readOnly":true``` key value pair from the file.
 * Replace the file under tmp: ```cp spark-executor.json /tmp/spark-executor.json```.
