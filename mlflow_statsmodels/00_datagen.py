@@ -1,5 +1,5 @@
 #****************************************************************************
-# (C) Cloudera, Inc. 2020-2023
+# (C) Cloudera, Inc. 2020-2025
 #  All rights reserved.
 #
 #  Applicable Open Source License: GNU Affero General Public License v3.0
@@ -73,6 +73,7 @@ class BankDataGen:
         spark.conf.set("spark.sql.shuffle.partitions", shuffle_partitions_requested)
 
         fakerDataspec = (DataGenerator(spark, rows=data_rows, partitions=partitions_requested)
+                    .withColumn("date", "timestamp", begin="2020-01-01 01:00:00",end="2024-12-31 23:59:00",interval="1 second", random=True)
                     .withColumn("age", "float", minValue=10, maxValue=100, random=True)
                     .withColumn("credit_card_balance", "float", minValue=100, maxValue=30000, random=True)
                     .withColumn("bank_account_balance", "float", minValue=0.01, maxValue=100000, random=True)
@@ -116,7 +117,7 @@ class BankDataGen:
         Method to save credit card transactions df as csv in cloud storage
         """
 
-        df.write.format("csv").mode('overwrite').save(self.storage + "/bank_fraud_demo/" + self.username)
+        df.write.format("csv").mode('overwrite').save(self.storage + "/arima_mlflow_demo/" + self.username)
 
 
     def createDatabase(self, spark):
@@ -132,17 +133,17 @@ class BankDataGen:
 
     def createOrReplace(self, df):
         """
-        Method to create or append data to the BANKING TRANSACTIONS table
+        Method to create or append data to the ARIMA_TS table
         The table is used to simulate batches of new data
         The table is meant to be updated periodically as part of a CML Job
         """
 
         try:
-            df.writeTo("{0}.CC_TRX_{1}".format(self.dbname, self.username))\
+            df.writeTo("SPARK_CATALOG.{0}.ARIMA_TS_{1}".format(self.dbname, self.username))\
               .using("iceberg").tableProperty("write.format.default", "parquet").append()
 
         except:
-            df.writeTo("{0}.CC_TRX_{1}".format(self.dbname, self.username))\
+            df.writeTo("SPARK_CATALOG.{0}.ARIMA_TS_{1}".format(self.dbname, self.username))\
                 .using("iceberg").tableProperty("write.format.default", "parquet").createOrReplace()
 
 
@@ -157,7 +158,7 @@ class BankDataGen:
 def main():
 
     USERNAME = os.environ["PROJECT_OWNER"]
-    DBNAME = "BNK_MLOPS_HOL_"+USERNAME
+    DBNAME = "STATS_MODELS_MLFLOW_"+USERNAME
     CONNECTION_NAME = "ita-jul-aw-dl"
 
     # Instantiate BankDataGen class
