@@ -38,39 +38,25 @@
 #***************************************************************************/
 
 import mlflow.pyfunc
-import pandas as pd
 from pyspark.sql import SparkSession
-import cml.data_v1 as cmldata
-
-class PandasUDFWrapper(mlflow.pyfunc.PythonModel):
-   def __init__(self, udf):
-       self.udf = udf
-
-   def predict(self, model_input: pd.DataFrame) -> pd.DataFrame:
-       return model_input.apply(self.udf, axis=1)
+import mlflow
+from pyspark.sql.functions import udf
 
 from pyspark import SparkContext
 SparkContext.setSystemProperty('spark.executor.cores', '2')
 SparkContext.setSystemProperty('spark.executor.memory', '4g')
 
 import cml.data_v1 as cmldata
-connectionName = ""
-conn = cmldata.get_connection(connectionName)
+conn = cmldata.get_connection(self.connectionName)
 spark = conn.get_spark_session()
 
-USERNAME = os.environ["PROJECT_OWNER"]
-DBNAME = "STATS_MODELS_MLFLOW_"+USERNAME
+# Load the UDF model
+model_uri = "runs:/<RUN_ID>/model"
+loaded_model = mlflow.pyfunc.spark_udf(spark, model_uri=model_uri)
 
-df = spark.sql("SELECT * FROM SPARK_CATALOG.{0}.ARIMA_TS_{1}".format(DBNAME, USERNAME))
+# Apply the UDF to your Spark DataFrame
+df = spark.createDataFrame([
+    (1,), (2,), (3,)
+], ["data"])
 
-# Create your UDF
-def my_udf(row):
-   return row['credit_card_balance'] + row['bank_account_balance']
-
-# Wrap the UDF
-wrapper = PandasUDFWrapper(my_udf)
-
-with mlflow.start_run():
-   mlflow.pyfunc.log_model("my_udf_model", python_model=wrapper)
-   result = model.predict(df)
-   mlflow.end_run()
+df.withColumn("prediction", loaded_model(df["data"])).show()
