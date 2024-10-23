@@ -5,7 +5,7 @@ from statsmodels.tsa.arima.model import ARIMA
 from pyspark.sql.functions import pandas_udf, PandasUDFType
 from pyspark.sql import SparkSession
 import pyspark.pandas as ps
-from pyspark.sql.types import FloatType, StructType, StructField, DoubleType
+from pyspark.sql.types import FloatType, StructType, StructField, DoubleType, StringType
 
 # Initialize Spark session
 #spark = SparkSession.builder.appName("ARIMA Example").getOrCreate()
@@ -88,5 +88,7 @@ with mlflow.start_run():
       input_example=pd.DataFrame({"Store": [str(1)], "Dept": [str(1)], "weekly_forecast_2":[float(24924.5)], "weekly_forecast_2":[float(24924.5)]}),  # Provide an example input
       conda_env={"channels": ["defaults"], "dependencies": ["pandas"]}
   )
+
+  print(forecasted_spark_df.summary())
 
   mlflow.end_run()
