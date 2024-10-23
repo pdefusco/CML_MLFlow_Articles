@@ -14,6 +14,7 @@ In this set of demo articles and tutorials you will discover how to use popular 
 
 1. XGBoost Example
 2. Spark & Iceberg Example
+3. Statsmodels on PySpark Example
 
 ##### 1. XGBoost Example
 
@@ -31,6 +32,10 @@ In this set of demo articles and tutorials you will discover how to use popular 
 * Open ```spark-executor.json``` in the Workbench editor and search for the ```/home/cdsw/``` field. In the corresponding struct, remove the ```"readOnly":true``` key value pair from the file.
 * Replace the file under tmp: ```cp spark-executor.json /tmp/spark-executor.json```.
 * Now partially run ```01_sparkml_iceberg.py``` until line 104. Notice that the model artifact is logged with the ```mlflow.spark.log_model``` method by referencing the ```dfs_tmpdir``` option. Next, take down the name of the experiment ID and experiment run ID from the output of the ```exp1``` method (or the MLFlow Tracking UI in CML). Finally, update these two values in the model path at line 108, and run the rest of the script.  
+
+##### 3. Statsmodels on PySpark Example
+
+Instructions coming soon.
 
 ### Summary & Next Steps
 
