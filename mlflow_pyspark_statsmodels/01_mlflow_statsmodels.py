@@ -63,17 +63,11 @@ def holt_winters_time_series_udf(data):
     forecast_values = pd.Series(model_monthly.forecast(2),name = 'fitted_values')
 
     return pd.DataFrame({'Store': [str(data.Store.iloc[0])],\
-                          'Dept': [str(data.Dept.iloc[0])],\
-                          'weekly_forecast_1': [forecast_values[0]],\
-                          'weekly_forecast_2':[forecast_values[1]]})
+                            'Dept': [str(data.Dept.iloc[0])],\
+                            'weekly_forecast_1': [forecast_values[0]],\
+                            'weekly_forecast_2':[forecast_values[1]]})
 
-# Define your UDF
-@pandas_udf("double", PandasUDFType.SCALAR)
-def predict_udf(data: pd.Series) -> pd.Series:
-    # Load your model here (e.g., using mlflow.pyfunc.load_model)
-    model = ...
-    return model.predict(data)
-
+mlflow.set_experiment("pyspark arima")
 # Log the UDF as an MLflow model
 with mlflow.start_run():
   ##aggregating the forecasted results in the form of a spark dataframe
@@ -89,6 +83,6 @@ with mlflow.start_run():
       conda_env={"channels": ["defaults"], "dependencies": ["pandas"]}
   )
 
-  print(forecasted_spark_df.summary())
+  #print(model_monthly.summary())
 
   mlflow.end_run()
