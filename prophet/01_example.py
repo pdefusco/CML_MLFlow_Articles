@@ -85,3 +85,8 @@ loaded_model = mlflow.prophet.load_model(model_info.model_uri)
 forecast = loaded_model.predict(loaded_model.make_future_dataframe(60))
 forecast = forecast[["ds", "yhat"]].tail(90)
 print(f"forecast:\n${forecast.head(30)}")
+
+
+#{"dataframe_split": {"columns": ["FL_VIVO_TOTAL", "TAXPIS", "TAXCOFINS", "TAXISS"], "data":[[35.5, 200.5, 30.5, 14.5]]}}
+
+#{"dataframe_split": {"columns": ["ds"], "data": [["1992-01-01T00:00:00"], ["1992-02-01T00:00:00"], ["1992-03-01T00:00:00"], ["1992-04-01T00:00:00"], ["1992-05-01T00:00:00"], ["1992-06-01T00:00:00"], ["1992-07-01T00:00:00"], ["1992-08-01T00:00:00"], ["1992-09-01T00:00:00"], ["1992-10-01T00:00:00"]]}}
