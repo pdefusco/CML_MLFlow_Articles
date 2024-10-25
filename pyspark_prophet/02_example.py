@@ -37,41 +37,50 @@
 # #  Author(s): Paul de Fusco
 #***************************************************************************/
 
-from pyspark.sql import SparkSession
-from xgboost.spark import SparkXGBClassifier
-from pyspark.ml.linalg import Vectors
+import mlflow.pyfunc
+import mlflow.pyfunc
+from pyspark.sql.functions import pandas_udf, PandasUDFType
+from pyspark.sql.types import *
+from pyspark.sql.functions import lit, udf
 
-spark = SparkSession\
-    .builder\
-    .appName("SparkXGBoostClassifier Example")\
-    .config("spark.hadoop.fs.s3a.s3guard.ddb.region", "us-east-2")\
-    .config("spark.kerberos.access.hadoopFileSystems","s3a://go01-demo")\
-    .config("spark.dynamic allocation.enabled", "false")\
-    .config("spark.executor.cores", "4")\
-    .config("spark.executor.memory", "4g")\
-    .config("spark.executor.instances", "2")\
-    .config("spark.driver.core","4")\
-    .config("spark.driver.memory","4g")\
-    .getOrCreate()
+def my_udf(col1: pd.Series, col2: pd.Series) -> pd.Series:
+    return col1 + col2
 
-import os
-print("https://spark-"+os.environ["CDSW_ENGINE_ID"]+"."+os.environ["CDSW_DOMAIN"])
+@pandas_udf("double")
+def wrapped_udf(*args):
+    return my_udf(pd.DataFrame(args)).iloc[:, 0]
 
-df_train = spark.createDataFrame([
-    (Vectors.dense(1.0, 2.0, 3.0), 0, False, 1.0),
-    (Vectors.sparse(3, {1: 1.0, 2: 5.5}), 1, False, 2.0),
-    (Vectors.dense(4.0, 5.0, 6.0), 0, True, 1.0),
-    (Vectors.sparse(3, {1: 6.0, 2: 7.5}), 1, True, 2.0),
-], ["features", "label", "isVal", "weight"])
+class MyModel(mlflow.pyfunc.PythonModel):
+    def predict(self, model_input):
+        return my_udf(model_input)
 
-df_test = spark.createDataFrame([
-    (Vectors.dense(1.0, 2.0, 3.0), ),
-], ["features"])
+# Test model
+model = MyModel()
+df = spark.createDataFrame([(1, 2), (3, 4)], ["col1", "col2"])
+model.predict(df).show()
 
-xgb_classifier = SparkXGBClassifier(max_depth=5, missing=0.0,
-    validation_indicator_col='isVal', weight_col='weight',
-    early_stopping_rounds=1, eval_metric='logloss', num_workers=2)
 
-xgb_clf_model = xgb_classifier.fit(df_train)
+df = df.withColumn("sum", add_columns(df.col1, df.col2))
 
-xgb_clf_model.transform(df_test).show()
+
+mlflow.set_experiment("pyspark-model-from-udf")
+with mlflow.start_run():
+    mlflow.pyfunc.log_model(
+        artifact_path="model",
+        python_model=model,
+        conda_env=mlflow.pyfunc.get_default_conda_env(),
+    )
+
+import mlflow
+
+logged_model = '/home/cdsw/.experiments/ukdw-tnrm-5wro-n71i/bblx-1hvo-lofo-up56/artifacts/model'
+
+# Load model as a Spark UDF.
+loaded_model = mlflow.pyfunc.spark_udf(spark, model_uri=logged_model)
+
+# Create a UDF
+predict_udf = udf(model.predict, PandasUDFType())
+
+# Make predictions
+predDf = loaded_model.predict(df)
+predDf.show()

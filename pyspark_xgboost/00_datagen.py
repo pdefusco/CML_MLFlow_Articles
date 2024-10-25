@@ -54,9 +54,8 @@ class BankDataGen:
 
     '''Class to Generate Banking Data'''
 
-    def __init__(self, username, dbname, storage, connectionName):
+    def __init__(self, username, dbname, connectionName):
         self.username = username
-        self.storage = storage
         self.dbname = dbname
         self.connectionName = connectionName
 
@@ -161,7 +160,7 @@ def main():
     CONNECTION_NAME = "ita-jul-aw-dl"
 
     # Instantiate BankDataGen class
-    dg = BankDataGen(USERNAME, DBNAME, STORAGE, CONNECTION_NAME)
+    dg = BankDataGen(USERNAME, DBNAME, CONNECTION_NAME)
 
     # Create CML Spark Connection
     spark = dg.createSparkConnection()

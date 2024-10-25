@@ -54,9 +54,8 @@ class BankDataGen:
 
     '''Class to Generate Banking Data'''
 
-    def __init__(self, username, dbname, storage, connectionName):
+    def __init__(self, username, dbname, connectionName):
         self.username = username
-        self.storage = storage
         self.dbname = dbname
         self.connectionName = connectionName
 
@@ -74,6 +73,7 @@ class BankDataGen:
 
         fakerDataspec = (DataGenerator(spark, rows=data_rows, partitions=partitions_requested)
                     .withColumn("date", "timestamp", begin="2020-01-01 01:00:00",end="2024-12-31 23:59:00",interval="1 second", random=True)
+                    .withColumn("code", "string", values=["A", "B", "C", "D", "E", "F", "G", "H"], random=True)
                     .withColumn("age", "float", minValue=10, maxValue=100, random=True)
                     .withColumn("credit_card_balance", "float", minValue=100, maxValue=30000, random=True)
                     .withColumn("bank_account_balance", "float", minValue=0.01, maxValue=100000, random=True)
@@ -117,8 +117,7 @@ class BankDataGen:
         Method to save credit card transactions df as csv in cloud storage
         """
 
-        df.write.format("csv").mode('overwrite').save(self.storage + "/arima_mlflow_demo/" + self.username)
-
+        pass
 
     def createDatabase(self, spark):
         """
@@ -159,10 +158,10 @@ def main():
 
     USERNAME = os.environ["PROJECT_OWNER"]
     DBNAME = "STATS_MODELS_MLFLOW_"+USERNAME
-    CONNECTION_NAME = "ita-jul-aw-dl"
+    CONNECTION_NAME = "paul-aug26-aw-dl"
 
     # Instantiate BankDataGen class
-    dg = BankDataGen(USERNAME, DBNAME, STORAGE, CONNECTION_NAME)
+    dg = BankDataGen(USERNAME, DBNAME, CONNECTION_NAME)
 
     # Create CML Spark Connection
     spark = dg.createSparkConnection()
@@ -178,7 +177,6 @@ def main():
 
     # Validate Iceberg Table in Database
     dg.validateTable(spark)
-
 
 if __name__ == '__main__':
     main()
