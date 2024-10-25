@@ -85,7 +85,7 @@ with mlflow.start_run():
   mlflow.pyfunc.log_model(
       artifact_path="model",
       python_model=holt_winters_time_series_udf,
-      input_example=pd.DataFrame({"code": [str("A")], "credit_card_balance_forecast":[float(24924.5)]}),  # Provide an example input
+      input_example=pd.DataFrame({"code": [str("A")], "credit_card_balance":[float(24924.5)]}),  # Provide an example input
       conda_env={"channels": ["defaults"], "dependencies": ["pandas"]}
   )
 
