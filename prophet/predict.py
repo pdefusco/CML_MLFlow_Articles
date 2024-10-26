@@ -43,7 +43,7 @@
 import os
 import mlflow
 import pandas as pd
-from statsmodels.tsa.arima.model import ARIMA
+from prophet import Prophet, serialize
 #import cdsw
 
 # Load the model saved earlier.
@@ -57,7 +57,7 @@ prophetModel = '/home/cdsw/.experiments/dei5-16qg-m1sa-58q7/5fjp-73ot-jaum-fs5z/
 # This is the main function used for serving the model. It will take in the JSON formatted arguments , calculate the probablity of
 # churn and create a LIME explainer explained instance and return that as JSON.
 
-def predict(args):     
+def predict(args):
     # Load JSON data
     data = json.loads(args)
 
@@ -72,6 +72,6 @@ def predict(args):
 
     return {"data": dict(data), "forecast": forecast}
 
-  
-#args = """{"dates": [694224000000, 696902400000, 699408000000]}""" 
+
+#args = """{"dates": [694224000000, 696902400000, 699408000000]}"""
 #predict(args)
